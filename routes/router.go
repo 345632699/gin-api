@@ -15,5 +15,5 @@ func InitRouter() {
 		v1.GET("/:id", controller.FetchSingleTodo)
 	}
 
-	r.Run(":9898")
+	//r.Run(":8081")
 }
