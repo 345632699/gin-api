@@ -3,12 +3,13 @@ package config
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"../model"
+	"report/model"
 )
 
 var (
 	Db *gorm.DB
-	sqlConnection = "root:root@(localhost)/go?charset=utf8&parseTime=True&loc=Local"
+	//sqlConnection = "root:root@(localhost)/go?charset=utf8&parseTime=True&loc=Local"
+	sqlConnection = "xu:root@(linuxwx.honeybot.cn)/honeybot?charset=utf8&parseTime=True&loc=Local"
 )
 
 func init() {

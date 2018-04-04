@@ -2,7 +2,7 @@ package routes
 
 import "github.com/gin-gonic/gin"
 import (
-	"../controller"
+	"report/controller"
 )
 
 var router = gin.Default()

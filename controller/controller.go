@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"fmt"
-	"../model"
-	"../config"
+	"report/model"
+	"report/config"
 )
 // createTodo add a new todo
 

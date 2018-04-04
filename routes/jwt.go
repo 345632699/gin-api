@@ -1,8 +1,8 @@
 package routes
 import (
 	"fmt"
-	"../middleware/jwt"
-	"../controller"
+	"report/middleware/jwt"
+	"report/controller"
 	"net/http"
 	"github.com/gin-gonic/gin"
 )
@@ -11,9 +11,6 @@ func Engine() *gin.Engine {
 
 	r.POST("/login",controller.LoginHandler)
 
-	r.GET("/jwt", func(c *gin.Context) {
-
-	})
 	authorize := r.Group("/", jwtauth.JWTAuth())
 	{
 		authorize.GET("user", func(c *gin.Context) {
@@ -27,7 +24,10 @@ func Engine() *gin.Engine {
 	{
 		application.GET("times_count",controller.TimeCountHandler)
 	}
-
+	robot := r.Group("/robot",jwtauth.JWTAuth())
+	{
+		robot.GET("monitor",controller.GetRobotActivityCount)
+	}
 	r.GET("/dologin", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(

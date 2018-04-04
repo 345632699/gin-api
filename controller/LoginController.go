@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"github.com/dgrijalva/jwt-go"
 	"time"
-	"../middleware/jwt"
+	"report/middleware/jwt"
 )
 
 var users = gin.H{

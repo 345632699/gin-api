@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"fmt"
 	"net/http"
-	"../middleware/jwt"
+	"report/middleware/jwt"
 )
 
 type Res struct {
