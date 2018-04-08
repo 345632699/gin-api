@@ -27,6 +27,8 @@ func Engine() *gin.Engine {
 	robot := r.Group("/robot",jwtauth.JWTAuth())
 	{
 		robot.GET("monitor",controller.GetRobotActivityCount)
+		robot.GET("stand_by_time",controller.StandByTimeCountHandeler)
+		robot.GET("time_spread",controller.GetTimeLengthHandler)
 	}
 	r.GET("/dologin", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
