@@ -13,7 +13,7 @@ func Engine() *gin.Engine {
 
 	authorize := r.Group("/", jwtauth.JWTAuth())
 	{
-		authorize.GET("user", func(c *gin.Context) {
+		authorize.Any("user", func(c *gin.Context) {
 			claims := c.MustGet("claims").(*jwtauth.CustomClaims)
 			fmt.Println(claims.Name)
 			c.String(http.StatusOK, claims.Name)
@@ -22,13 +22,19 @@ func Engine() *gin.Engine {
 
 	application := r.Group("/app",jwtauth.JWTAuth())
 	{
-		application.GET("times_count",controller.TimeCountHandler)
+		application.Any("times_count",controller.TimeCountHandler)
 	}
 	robot := r.Group("/robot",jwtauth.JWTAuth())
 	{
-		robot.GET("monitor",controller.GetRobotActivityCount)
-		robot.GET("stand_by_time",controller.StandByTimeCountHandeler)
-		robot.GET("time_spread",controller.GetTimeLengthHandler)
+		robot.Any("monitor",controller.GetRobotActivityCount)
+		robot.Any("time_span_count",controller.RobotTimeSpanCount)
+		robot.Any("time_spread",controller.GetTimeLengthHandler)
+	}
+	mobile := r.Group("/mobile",jwtauth.JWTAuth())
+	{
+		mobile.Any("monitor",controller.MobileActivityRate)
+		mobile.Any("time_span_count",controller.MobileTimeSpanCount)
+		mobile.Any("use_times_spread",controller.MobileUserTimeSpread)
 	}
 	r.GET("/dologin", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
