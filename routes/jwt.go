@@ -5,10 +5,11 @@ import (
 	"report/controller"
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 )
 func Engine() *gin.Engine {
 	r := gin.Default()
-
+	r.Use(cors.Default())
 	r.POST("/login",controller.LoginHandler)
 
 	authorize := r.Group("/", jwtauth.JWTAuth())
