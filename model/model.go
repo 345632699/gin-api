@@ -13,6 +13,12 @@ type (
 		Count string `json:"count"`
 	}
 
+	MUserBase struct {
+		Count string `json:"count"`
+	}
+
+
+
 	TransformedTodo struct {
 		ID        uint   `json:"id"`
 		Title     string `json:"title"`
@@ -22,4 +28,8 @@ type (
 // 设置RUserBase的表名为`RUserBase`
 func (RUserBase) TableName() string {
 	return "RUserBase"
+}
+
+func (MUserBase) TableName() string {
+	return "MUserBase"
 }

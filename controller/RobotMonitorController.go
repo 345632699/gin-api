@@ -42,7 +42,7 @@ func GetRobotActivityCount(c *gin.Context){
 }
 
 //机器人待机时间
-func StandByTimeCountHandeler(c *gin.Context) {
+func RobotTimeSpanCount(c *gin.Context) {
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
 	var res Result
