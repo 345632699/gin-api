@@ -13,8 +13,8 @@ type Res struct {
 	ID        uint   `json:"id"`
 	DateTime     string `json:"datetime"`
 	Name     string `json:"name"`
-	TimeLengthCount float64 `json:"time_length_count"`
-	TimesCount int `json:"times_count"`
+	TimeLengthCount string `json:"time_length_count"`
+	TimesCount string `json:"times_count"`
 }
 
 //各應用使用時常統計
@@ -22,7 +22,7 @@ func TimeLengthCountHandler(c *gin.Context) {
 	sql := `SELECT
 		LookUpFunctionValueId as id,
 		Description as name,
-		sum(time_count)/60 as time_length_count,
+		sum(time_count) as time_length_count,
 		FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS date_time
 	FROM
 	(
@@ -50,28 +50,31 @@ func TimeLengthCountHandler(c *gin.Context) {
 	db := config.Db
 	start_at,_:= strconv.ParseInt(c.Query("start_at"),10,64)
 	end_at,_ := strconv.ParseInt(c.Query("end_at"),10,64)
-	resMaps := make(map[string]map[string]float64)
+	resMaps := make(map[string]map[string]string)
 	var res Res
+	var dateArr [] string
 	for start_at < end_at {
 		var results []Res
 		day_end := start_at + 86400
 		db.Raw(sql, start_at,day_end).Scan(&results)
-		resMap := make(map[string]float64)
+		resMap := make(map[string]string)
 		var datetime string
 		for _,result := range results{
 			resMap[result.Name] = result.TimeLengthCount
 		}
 		for _,app := range res.allApp(){
 			if _, ok := resMap[app.Name]; ok == false {
-				resMap[app.Name] = 0
+				resMap[app.Name] = "0"
 			}
 		}
 		tm := time.Unix(start_at,0)
 		datetime = tm.Format("2006-01-02")
 		resMaps[datetime] = resMap
+		dateArr = append(dateArr, datetime)
 		start_at += 86400
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps,"count_num":res.allCountNum()})
+	count_arr := res.formatRes(resMaps)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": gin.H{"date_arr":dateArr,"count_arr":count_arr},"count_num":res.allCountNum()})
 
 }
 
@@ -103,29 +106,42 @@ FROM
 	db := config.Db
 	start_at,_:= strconv.ParseInt(c.Query("start_at"),10,64)
 	end_at,_ := strconv.ParseInt(c.Query("end_at"),10,64)
-	resMaps := make(map[string]map[string]int)
+	resMaps := make(map[string]map[string]string)
 	var res Res
+	var dateArr [] string
 	for start_at < end_at {
 		var results []Res
 		day_end := start_at + 86400
 		db.Raw(sql, start_at,day_end).Scan(&results)
-		resMap := make(map[string]int)
+		resMap := make(map[string]string)
 		var datetime string
 		for _,result := range results{
 			resMap[result.Name] = result.TimesCount
 		}
 		for _,app := range res.allApp(){
 			if _, ok := resMap[app.Name]; ok == false {
-				resMap[app.Name] = 0
+				resMap[app.Name] = "0"
 			}
 		}
 		tm := time.Unix(start_at,0)
 		datetime = tm.Format("2006-01-02")
 		resMaps[datetime] = resMap
+		dateArr = append(dateArr, datetime)
 		start_at += 86400
 	}
-
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps,"count_num":res.allCountNum()})
+	//拼接前端格式化数据
+	m := make(map[string] string)
+	for _,item := range resMaps{
+		for k,v := range item{
+			if m[k] == "" {
+				m[k] = v
+				continue
+			}
+			m[k] = m[k] + "," + v
+		}
+	}
+	count_arr := res.formatRes(resMaps)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": gin.H{"date_arr":dateArr,"count_arr":count_arr},"count_num":res.allCountNum()})
 }
 
 func (res Res)allApp() [] model.LookUpValue  {
@@ -145,4 +161,18 @@ func (res Res)allCountNum() map[string]int {
 	db.Select("count(*) as count").First(&rUserBase)
 	count_num["robot_count_num"] = rUserBase.Count
 	return count_num
+}
+
+func (res Res)formatRes(resMaps map[string]map[string]string) map[string] string{
+	m := make(map[string] string)
+	for _,item := range resMaps{
+		for k,v := range item{
+			if m[k] == "" {
+				m[k] = v
+				continue
+			}
+			m[k] = m[k] + "," + v
+		}
+	}
+	return m
 }
