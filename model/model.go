@@ -17,7 +17,9 @@ type (
 		Count string `json:"count"`
 	}
 
-
+	LookUpValue struct {
+		Name string `json:"name"`
+	}
 
 	TransformedTodo struct {
 		ID        uint   `json:"id"`
@@ -33,3 +35,8 @@ func (RUserBase) TableName() string {
 func (MUserBase) TableName() string {
 	return "MUserBase"
 }
+
+func (LookUpValue) TableName() string {
+	return "LookUpValue"
+}
+

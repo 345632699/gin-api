@@ -25,7 +25,7 @@ func LoginHandler(c *gin.Context){
 			password,
 			jwt.StandardClaims{
 				//ExpiresAt: 15000, //time.Now().Add(24 * time.Hour).Unix()
-				ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
+				ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 				Issuer: "test",
 			},
 		}

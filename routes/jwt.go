@@ -23,7 +23,8 @@ func Engine() *gin.Engine {
 
 	application := r.Group("/app",jwtauth.JWTAuth())
 	{
-		application.Any("times_count",controller.TimeCountHandler)
+		application.Any("time_length_count",controller.TimeLengthCountHandler)
+		application.Any("times_count",controller.TimesCountHandler)
 	}
 	robot := r.Group("/robot",jwtauth.JWTAuth())
 	{
