@@ -10,11 +10,11 @@ type (
 	}
 
 	RUserBase struct {
-		Count string `json:"count"`
+		Count int `json:"count"`
 	}
 
 	MUserBase struct {
-		Count string `json:"count"`
+		Count int `json:"count"`
 	}
 
 	LookUpValue struct {

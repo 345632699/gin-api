@@ -17,7 +17,22 @@ type MobileActivityRes struct {
 
 //手機用戶活躍率
 func MobileActivityRate(c *gin.Context)  {
-	sql := "SELECT FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime, count(OpTime)  as activity_count FROM(SELECT OpTime FROM StatisticOperation so WHERE so.Platform IN(0,1) AND OpTime BETWEEN ? AND ?  GROUP BY UserId ) app_count"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	count(OpTime) AS activity_count
+	FROM
+	(
+		SELECT
+			OpTime
+		FROM
+			StatisticOperation so
+		WHERE
+			so.Platform IN (0, 1)
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			UserId
+	) app_count`
 	var mobile MobileActivityRes
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
@@ -33,7 +48,28 @@ func MobileTimeSpanCount(c *gin.Context)  {
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
 	var res MobileActivityRes
-	sql := "SELECT FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime, SUM(count_time) AS span_time_length FROM( SELECT UserId, LookUpFunctionValueId, OpTime, max(OpTime) - min(OpTime) AS count_time FROM StatisticOperation WHERE LookUpFunctionValueId <> 5 AND UserId = UserId AND Platform IN(0,1) AND OpTime BETWEEN ? AND ? GROUP BY LookUpFunctionValueId, UserId) a"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	SUM(count_time) AS span_time_length
+	FROM
+	(
+		SELECT
+			UserId,
+			LookUpFunctionValueId,
+			OpTime,
+			max(OpTime) - min(OpTime) AS count_time
+		FROM
+			StatisticOperation
+		WHERE
+			LookUpFunctionValueId <> 5
+		AND UserId = UserId
+		AND Platform IN (0, 1)
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			LookUpFunctionValueId,
+			UserId
+	) a`
 	_result := res.doQuery(start_at,end_at,sql)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _result})
 }
@@ -47,7 +83,23 @@ func MobileUserTimeSpread(c *gin.Context)  {
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
 	db := config.Db
-	sql := "SELECT 	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime, count(UserId) as use_times FROM( SELECT OpTime,UserId FROM StatisticOperation so WHERE so.Platform IN(0,1) AND OpTime BETWEEN ? AND ? ) a GROUP BY UserId"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	count(UserId) AS use_times
+	FROM
+	(
+		SELECT
+			OpTime,
+			UserId
+		FROM
+			StatisticOperation so
+		WHERE
+			so.Platform IN (0, 1)
+		AND OpTime BETWEEN ?
+		AND ?
+	) a
+	GROUP BY
+	UserId`
 	var time_counts []TimeCount
 	res := make(map[string]map[int]int)
 	for start_at < end_at {

@@ -23,7 +23,24 @@ func GetRobotActivityCount(c *gin.Context){
 	//string 类型转换为int类型值
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
-	sql := "SELECT FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,count(1) * 14 AS activity_count FROM(SELECT * FROM StatisticOperation WHERE LookUpFunctionValueId <> 5 AND UserId = UserId AND Platform = 100  AND OpTime BETWEEN ? AND ? GROUP BY UserId ) a"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	count(1) * 14 AS activity_count
+	FROM
+	(
+		SELECT
+			*
+		FROM
+			StatisticOperation
+		WHERE
+			LookUpFunctionValueId <> 5
+		AND UserId = UserId
+		AND Platform = 100
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			UserId
+	) a`
 	db := config.Db
 	var res Result
 	_result := res.doQuery(start_at,end_at,sql)
@@ -38,7 +55,28 @@ func RobotTimeSpanCount(c *gin.Context) {
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
 	var res Result
-	sql := "SELECT FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime, SUM(count_time) AS sum_time FROM( SELECT UserId, LookUpFunctionValueId, OpTime, max(OpTime) - min(OpTime) AS count_time FROM StatisticOperation WHERE LookUpFunctionValueId <> 5 AND UserId = UserId AND Platform = 100 AND OpTime BETWEEN ? AND ? GROUP BY LookUpFunctionValueId, UserId) a"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	SUM(count_time) AS sum_time
+	FROM
+	(
+		SELECT
+			UserId,
+			LookUpFunctionValueId,
+			OpTime,
+			max(OpTime) - min(OpTime) AS count_time
+		FROM
+			StatisticOperation
+		WHERE
+			LookUpFunctionValueId <> 5
+		AND UserId = UserId
+		AND Platform = 100
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			LookUpFunctionValueId,
+			UserId
+	) a`
 	_result := res.doQuery(start_at,end_at,sql)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _result})
 
@@ -56,7 +94,30 @@ type SumRes struct {
 func GetTimeLengthHandler(c *gin.Context) {
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
-	sql := "SELECT 	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,SUM(count_time) as sum_count_time from (SELECT UserId as user_id,LookUpFunctionValueId,OpTime,(max(OpTime) - min(OpTime))/3600 AS count_time FROM StatisticOperation WHERE LookUpFunctionValueId <> 5 AND UserId = UserId AND Platform = 100 AND OpTime BETWEEN ? AND ? GROUP BY LookUpFunctionValueId, UserId) a GROUP BY user_id"
+	sql := `SELECT
+	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
+	SUM(count_time) AS sum_count_time
+	FROM
+	(
+		SELECT
+			UserId AS user_id,
+			LookUpFunctionValueId,
+			OpTime,
+			(max(OpTime) - min(OpTime)) / 3600 AS count_time
+		FROM
+			StatisticOperation
+		WHERE
+			LookUpFunctionValueId <> 5
+		AND UserId = UserId
+		AND Platform = 100
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			LookUpFunctionValueId,
+			UserId
+	) a
+	GROUP BY
+	user_id`
 	db := config.Db
 	var spread Spread
 	var spreads []Spread

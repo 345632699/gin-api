@@ -51,6 +51,7 @@ func TimeLengthCountHandler(c *gin.Context) {
 	start_at,_:= strconv.ParseInt(c.Query("start_at"),10,64)
 	end_at,_ := strconv.ParseInt(c.Query("end_at"),10,64)
 	resMaps := make(map[string]map[string]float64)
+	var res Res
 	for start_at < end_at {
 		var results []Res
 		day_end := start_at + 86400
@@ -60,7 +61,6 @@ func TimeLengthCountHandler(c *gin.Context) {
 		for _,result := range results{
 			resMap[result.Name] = result.TimeLengthCount
 		}
-		var res Res
 		for _,app := range res.allApp(){
 			if _, ok := resMap[app.Name]; ok == false {
 				resMap[app.Name] = 0
@@ -71,7 +71,7 @@ func TimeLengthCountHandler(c *gin.Context) {
 		resMaps[datetime] = resMap
 		start_at += 86400
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps,"count_num":res.allCountNum()})
 
 }
 
@@ -104,6 +104,7 @@ FROM
 	start_at,_:= strconv.ParseInt(c.Query("start_at"),10,64)
 	end_at,_ := strconv.ParseInt(c.Query("end_at"),10,64)
 	resMaps := make(map[string]map[string]int)
+	var res Res
 	for start_at < end_at {
 		var results []Res
 		day_end := start_at + 86400
@@ -113,7 +114,6 @@ FROM
 		for _,result := range results{
 			resMap[result.Name] = result.TimesCount
 		}
-		var res Res
 		for _,app := range res.allApp(){
 			if _, ok := resMap[app.Name]; ok == false {
 				resMap[app.Name] = 0
@@ -125,7 +125,7 @@ FROM
 		start_at += 86400
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resMaps,"count_num":res.allCountNum()})
 }
 
 func (res Res)allApp() [] model.LookUpValue  {
@@ -133,4 +133,16 @@ func (res Res)allApp() [] model.LookUpValue  {
 	var app  [] model.LookUpValue
 	db.Select("Description as name").Where("TypeCode = ? AND Scope = ?","FUNCTION","ROBOT").Find(&app)
 	return app
+}
+
+func (res Res)allCountNum() map[string]int {
+	count_num := make(map[string]int)
+	db := config.Db
+	var mUserBase model.MUserBase
+	db.Select("count(*) as count").First(&mUserBase)
+	count_num["mobile_count_num"] = mUserBase.Count
+	var rUserBase model.RUserBase
+	db.Select("count(*) as count").First(&rUserBase)
+	count_num["robot_count_num"] = rUserBase.Count
+	return count_num
 }
