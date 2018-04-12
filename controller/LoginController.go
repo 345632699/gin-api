@@ -11,7 +11,20 @@ import (
 var users = gin.H{
 	"admin":    "admin123",
 }
-
+/**
+* @api {POST} /login 用户登录
+* @apiGroup Users
+* @apiVersion 0.0.1
+* @apiDescription 获取token验证值
+* @apiParam {String} name 用户名
+* @apiParam {String} password 密码
+* @apiParamExample {json} 请求样例：
+*                ?name=admin&password=admin123
+* @apiSuccess (200) {String} code 200 代表无错误 1代表有错误
+* @apiSuccess (200) {String} token 验证token
+* @apiSuccessExample {json} 返回样例:
+*             {"status":200,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6ImFkbWluMTIzIiwiZXhwIjoxNTIzNjA1NTU0LCJpc3MiOiJ0ZXN0In0.f1Glpi2jLZe5nUnpOWbB-II6NtMom5D6Nq6oTYuF5nA"}
+*/
 func LoginHandler(c *gin.Context){
 	name := c.PostForm("name")
 	password := c.PostForm("password")
