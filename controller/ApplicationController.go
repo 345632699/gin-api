@@ -88,7 +88,7 @@ func TimeLengthCountHandler(c *gin.Context) {
 		dateArr = append(dateArr, datetime)
 		start_at += 86400
 	}
-	count_arr := res.formatRes(resMaps)
+	count_arr := res.formatRes(resMaps,dateArr)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": gin.H{"date_arr":dateArr,"count_arr":count_arr},"count_num":res.allCountNum()})
 
 }
@@ -170,7 +170,7 @@ FROM
 			m[k] = m[k] + "," + v
 		}
 	}
-	count_arr := res.formatRes(resMaps)
+	count_arr := res.formatRes(resMaps,dateArr)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": gin.H{"date_arr":dateArr,"count_arr":count_arr},"count_num":res.allCountNum()})
 }
 
@@ -193,15 +193,15 @@ func (res Res)allCountNum() map[string]int {
 	return count_num
 }
 
-func (res Res)formatRes(resMaps map[string]map[string]string) map[string] string{
+func (res Res)formatRes(resMaps map[string]map[string]string ,dateArr [] string) map[string] string{
 	m := make(map[string] string)
-	for _,item := range resMaps{
-		for k,_ := range item{
+	for _,datetime := range dateArr{
+		for k,_ := range resMaps[datetime]{
 			if m[k] == "" {
-				m[k] = item[k]
+				m[k] = resMaps[datetime][k]
 				continue
 			}
-			m[k] = m[k] + "," + item[k]
+			m[k] = m[k] + "," + resMaps[datetime][k]
 		}
 	}
 	return m
