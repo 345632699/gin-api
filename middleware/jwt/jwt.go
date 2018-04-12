@@ -20,6 +20,9 @@ func JWTAuth() gin.HandlerFunc {
 		claims, err := j.ParseToken(token)
 		if err != nil {
 			if err == TokenExpired {
+				c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "msg": "登录验证超时，请重新登录"})
+				c.Abort()
+				return
 				if token, err = j.RefreshToken(token); err == nil {
 					c.Header("Authorization", "Bear "+token)
 					c.JSON(http.StatusOK, gin.H{"error": 0, "message": "refresh token", "token": token})

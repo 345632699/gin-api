@@ -38,6 +38,9 @@ func LoginHandler(c *gin.Context){
 		//res, err := j.ParseToken(token)
 		if err != nil {
 			if err == jwtauth.TokenExpired {
+				c.JSON(http.StatusOK, gin.H{"status": http.StatusUnauthorized, "msg": "登录验证超时，请重新登录"})
+				c.Abort()
+				return
 				newToken, err := j.RefreshToken(token)
 				if err != nil {
 					c.String(http.StatusOK, err.Error())
