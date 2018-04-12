@@ -25,7 +25,7 @@ func GetRobotActivityCount(c *gin.Context){
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
 	sql := `SELECT
 	FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS datetime,
-	count(1) * 14 AS activity_count
+	count(1) AS activity_count
 	FROM
 	(
 		SELECT
