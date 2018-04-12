@@ -30,6 +30,7 @@ func JWTAuth() gin.HandlerFunc {
 				}
 			}
 			c.JSON(http.StatusUnauthorized, gin.H{"error": 1, "message": err.Error()})
+			c.Abort()
 			return
 		}
 		c.Set("claims", claims)

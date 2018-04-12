@@ -19,7 +19,6 @@ type Result struct {
 
 //获取每天开机机器人的活跃数
 func GetRobotActivityCount(c *gin.Context){
-	c.MustGet("claims")
 	//string 类型转换为int类型值
 	start_at,_:= strconv.Atoi(c.Query("start_at"))
 	end_at,_ := strconv.Atoi(c.Query("end_at"))
