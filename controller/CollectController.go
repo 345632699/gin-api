@@ -151,10 +151,11 @@ func ActivityUserByMonth(c *gin.Context)  {
 		for _,count := range v{
 			if count > 15 {
 				arr["高活跃"] += 1
-			}else{
+			}else if count >=1 && count <= 5{
 				arr["低活跃"] += 1
 			}
 		}
+		arr["月活跃"] = len(v)
 		resultMap[k] = arr
 	}
 	fmt.Println(m)
