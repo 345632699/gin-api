@@ -41,7 +41,7 @@ func Engine() *gin.Engine {
 	collect := r.Group("/collect",jwtauth.JWTAuth())
 	{
 		collect.Any("app",controller.RobotCoolect)
-		collect.Any("month_activity",controller.ActivityUserByMonth)
+		collect.Any("robot/month_activity",controller.ActivityUserByMonth)
 
 	}
 
