@@ -38,6 +38,13 @@ func Engine() *gin.Engine {
 		mobile.Any("time_span_count",controller.MobileTimeSpanCount)
 		mobile.Any("use_times_spread",controller.MobileUserTimeSpread)
 	}
+	collect := r.Group("/collect",jwtauth.JWTAuth())
+	{
+		collect.Any("app",controller.RobotCoolect)
+		collect.Any("month_activity",controller.ActivityUserByMonth)
+
+	}
+
 	r.GET("/dologin", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(
