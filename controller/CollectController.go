@@ -195,3 +195,21 @@ func queryForResult(sql string,start_at,end_at int64) map[string]map[string]int 
 	}
 	return resultMap
 }
+
+type countRes struct {
+	OnlineRobotCount int
+	RobotCount int
+	MobileCount int
+}
+
+func GetCounts(c *gin.Context)  {
+	db := config.Db
+	online_robot_count_sql := `SELECT count(*) as online_robot_count from RUserBase where IsOnline=1`
+	robot_count_sql := `SELECT count(*) as robot_count from RUserBase`
+	mobile_count_sql := `SELECT count(*) as mobile_count from MUserBase`
+	var res countRes
+	db.Raw(online_robot_count_sql).Scan(&res)
+	db.Raw(robot_count_sql).Scan(&res)
+	db.Raw(mobile_count_sql).Scan(&res)
+	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":res})
+}

@@ -42,6 +42,8 @@ func Engine() *gin.Engine {
 	{
 		collect.Any("app",controller.RobotCoolect)
 		collect.Any("robot/month_activity",controller.ActivityUserByMonth)
+		collect.Any("mobile/month_activity",controller.ActivityMobileByMonth)
+		collect.Any("count",controller.GetCounts)
 
 	}
 
