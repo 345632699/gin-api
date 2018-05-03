@@ -133,6 +133,41 @@ func ActivityUserByMonth(c *gin.Context)  {
 	) a
 	GROUP BY
 	UserId`
+	resultMap := queryForResult(sql,start_at,end_at)
+	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":resultMap})
+}
+
+func ActivityMobileByMonth(c *gin.Context)  {
+	start_at,_:= strconv.ParseInt(c.Query("start_at"),10,64)
+	end_at,_ := strconv.ParseInt(c.Query("end_at"),10,64)
+	sql := `SELECT
+	count(UserId) as count,
+	UserId,
+	FROM_UNIXTIME(OpTime, '%Y-%m') AS month_date
+	FROM
+	(
+		SELECT
+			UserId,
+			OpTime,
+			FROM_UNIXTIME(OpTime, '%Y-%m-%d') AS date_time
+		FROM
+			StatisticOperation
+		WHERE
+			Platform in(0,1)
+		AND OpTime BETWEEN ?
+		AND ?
+		GROUP BY
+			UserId,
+			date_time
+	) a
+	GROUP BY
+	UserId`
+	resultMap := queryForResult(sql,start_at,end_at)
+	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":resultMap})
+}
+
+
+func queryForResult(sql string,start_at,end_at int64) map[string]map[string]int  {
 	db := config.Db
 	var res []ActivityMonth
 	m := make(map[string][]int)
@@ -158,7 +193,5 @@ func ActivityUserByMonth(c *gin.Context)  {
 		arr["月活跃"] = len(v)
 		resultMap[k] = arr
 	}
-	fmt.Println(m)
-	fmt.Println(resultMap)
-	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":resultMap})
+	return resultMap
 }
