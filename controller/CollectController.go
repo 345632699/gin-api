@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"net/http"
 	"fmt"
+	"github.com/tealeg/xlsx"
+	time2 "time"
 )
 
 type TimeCountResult struct {
@@ -100,6 +102,55 @@ func RobotCoolect(c *gin.Context)  {
 			length = length + r.TimeLength
 		}
 	}
+	act := c.Query("act")
+	if act == "export"  {
+		file := xlsx.NewFile()
+		sheet, _ := file.AddSheet("机器人活跃数")
+		row := sheet.AddRow()
+		row.SetHeightCM(1) //设置每行的高度
+		cell := row.AddCell()
+		cell.Value = "应用"
+		cell = row.AddCell()
+		cell.Value = "使用次数"
+		cell = row.AddCell()
+		cell.Value = "次数占比"
+		cell = row.AddCell()
+		cell.Value = "使用时长"
+		cell = row.AddCell()
+		cell.Value = "时长占比"
+		cell = row.AddCell()
+		cell.Value = "总时长/s"
+		cell = row.AddCell()
+		cell.Value = "总次数"
+		for _,v := range Results{
+			row = sheet.AddRow()
+			row.SetHeightCM(1) //设置每行的高度
+			cell = row.AddCell()
+			cell.Value = v.Name
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa(v.TimesCount / 60 )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v.TimesCount * 100  / count)+ "%"
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v.TimeLength )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v.TimeLength * 100 / length ) + "%"
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( length )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( count )
+		}
+		time := strconv.FormatInt(time2.Now().Unix(),10)
+		path := "./export/app/usage/"+time+".xlsx"
+		err := file.Save(path)
+		if err != nil {
+			panic(err)
+		}
+		doExport(c,path)
+		return
+	}
+
+
 	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"all_counts":count,"all_length":length,"data":Results})
 }
 
@@ -134,6 +185,41 @@ func ActivityUserByMonth(c *gin.Context)  {
 	GROUP BY
 	UserId`
 	resultMap := queryForResult(sql,start_at,end_at)
+	act := c.Query("act")
+	if act == "export"  {
+		file := xlsx.NewFile()
+		sheet, _ := file.AddSheet("机器人活跃数")
+		row := sheet.AddRow()
+		row.SetHeightCM(1) //设置每行的高度
+		cell := row.AddCell()
+		cell.Value = "月份"
+		cell = row.AddCell()
+		cell.Value = "高活跃"
+		cell = row.AddCell()
+		cell.Value = "低活跃"
+		cell = row.AddCell()
+		cell.Value = "低活跃"
+		for k,v := range resultMap{
+			row = sheet.AddRow()
+			row.SetHeightCM(1) //设置每行的高度
+			cell = row.AddCell()
+			cell.Value = k
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["高活跃"] )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["低活跃"] )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["低活跃"] )
+		}
+		time := strconv.FormatInt(time2.Now().Unix(),10)
+		path := "./export/robot/month_activity/"+time+".xlsx"
+		err := file.Save(path)
+		if err != nil {
+			panic(err)
+		}
+		doExport(c,path)
+		return
+	}
 	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":resultMap})
 }
 
@@ -163,6 +249,41 @@ func ActivityMobileByMonth(c *gin.Context)  {
 	GROUP BY
 	UserId`
 	resultMap := queryForResult(sql,start_at,end_at)
+	act := c.Query("act")
+	if act == "export"  {
+		file := xlsx.NewFile()
+		sheet, _ := file.AddSheet("手机端活跃数")
+		row := sheet.AddRow()
+		row.SetHeightCM(1) //设置每行的高度
+		cell := row.AddCell()
+		cell.Value = "月份"
+		cell = row.AddCell()
+		cell.Value = "高活跃"
+		cell = row.AddCell()
+		cell.Value = "低活跃"
+		cell = row.AddCell()
+		cell.Value = "低活跃"
+		for k,v := range resultMap{
+			row = sheet.AddRow()
+			row.SetHeightCM(1) //设置每行的高度
+			cell = row.AddCell()
+			cell.Value = k
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["高活跃"] )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["低活跃"] )
+			cell = row.AddCell()
+			cell.Value = strconv.Itoa( v["低活跃"] )
+		}
+		time := strconv.FormatInt(time2.Now().Unix(),10)
+		path := "./export/robot/month_activity/"+time+".xlsx"
+		err := file.Save(path)
+		if err != nil {
+			panic(err)
+		}
+		doExport(c,path)
+		return
+	}
 	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":resultMap})
 }
 
@@ -212,4 +333,14 @@ func GetCounts(c *gin.Context)  {
 	db.Raw(robot_count_sql).Scan(&res)
 	db.Raw(mobile_count_sql).Scan(&res)
 	c.JSON(http.StatusOK,gin.H{"status":http.StatusOK,"data":res})
+}
+
+func doExport(c *gin.Context,path string)  {
+	c.Header("Accept-Ranges", "bytes")
+	c.Header("Content-Disposition", "attachment; filename="+fmt.Sprintf("%s", path))//文件名
+	c.Header("Cache-Control", "must-revalidate, post-check=0, pre-check=0")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+	c.File(path)
+	return
 }
