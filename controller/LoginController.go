@@ -8,8 +8,11 @@ import (
 	"report/middleware/jwt"
 )
 
-var users = gin.H{
-	"admin":    "admin123",
+
+type User struct {
+	Name string `json:"name"`
+	Password string `json:"password"`
+	Role int `json:"role"`
 }
 /**
 * @api {POST} /login 用户登录
@@ -26,10 +29,15 @@ var users = gin.H{
 *             {"status":200,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6ImFkbWluMTIzIiwiZXhwIjoxNTIzNjA1NTU0LCJpc3MiOiJ0ZXN0In0.f1Glpi2jLZe5nUnpOWbB-II6NtMom5D6Nq6oTYuF5nA"}
 */
 func LoginHandler(c *gin.Context){
+	var UserMap = make(map[string]User)
+	UserMap["admin"] = User{"admin","admin123",1}
+	UserMap["admin1"] = User{"admin","admin123",2}
+	UserMap["admin2"] = User{"admin","admin123",3}
+
 	name := c.PostForm("name")
 	password := c.PostForm("password")
 
-	if _, ok := users[name]; ok &&  users[name] == password {
+	if _, ok := UserMap[name]; ok &&  UserMap[name].Password == password {
 		j := &jwtauth.JWT{
 			[]byte("test"),
 		}
