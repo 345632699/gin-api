@@ -6,14 +6,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
 	"report/middleware/jwt"
+	"report/config"
+	"report/model"
 )
 
-
-type User struct {
-	Name string `json:"name"`
-	Password string `json:"password"`
-	Role int `json:"role"`
-}
 /**
 * @api {POST} /login 用户登录
 * @apiGroup Users
@@ -29,15 +25,14 @@ type User struct {
 *             {"status":200,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6ImFkbWluMTIzIiwiZXhwIjoxNTIzNjA1NTU0LCJpc3MiOiJ0ZXN0In0.f1Glpi2jLZe5nUnpOWbB-II6NtMom5D6Nq6oTYuF5nA"}
 */
 func LoginHandler(c *gin.Context){
-	var UserMap = make(map[string]User)
-	UserMap["admin"] = User{"admin","admin123",1}
-	UserMap["admin1"] = User{"admin","admin123",2}
-	UserMap["admin2"] = User{"admin","admin123",3}
-
+	var user model.User
 	name := c.PostForm("name")
 	password := c.PostForm("password")
 
-	if _, ok := UserMap[name]; ok &&  UserMap[name].Password == password {
+	db := config.Db
+	db.Where("name = ?",name).Find(&user)
+
+	if  user.Name != "" && user.Password == password {
 		j := &jwtauth.JWT{
 			[]byte("test"),
 		}
@@ -72,7 +67,7 @@ func LoginHandler(c *gin.Context){
 				c.String(http.StatusOK, err.Error())
 			}
 		} else {
-			c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+			c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token,})
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{"status": http.StatusUnauthorized, "msg": "账号或者密码错误"})
