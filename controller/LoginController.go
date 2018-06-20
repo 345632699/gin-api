@@ -67,7 +67,7 @@ func LoginHandler(c *gin.Context){
 				c.String(http.StatusOK, err.Error())
 			}
 		} else {
-			c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token,})
+			c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token,"role_type":user.RoleType})
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{"status": http.StatusUnauthorized, "msg": "账号或者密码错误"})
