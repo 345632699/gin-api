@@ -383,7 +383,7 @@ type countRes struct {
 func GetCounts(c *gin.Context)  {
 	db := config.Db
 	online_robot_count_sql := `SELECT count(*) as online_robot_count from RUserBase where IsOnline=1`
-	robot_count_sql := `SELECT count(*) as robot_count from RUserBase`
+	robot_count_sql := `SELECT count(1) as robot_count from sta_rb_base_info`
 	mobile_count_sql := `SELECT count(*) as mobile_count from MUserBase`
 	var res countRes
 	db.Raw(online_robot_count_sql).Scan(&res)
